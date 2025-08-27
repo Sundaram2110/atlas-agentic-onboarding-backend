@@ -2,5 +2,5 @@ import { Router } from 'express';
 import { runAgent } from '../controllers/agentController';
 
 const router = Router();
-router.post('/run', runAgent);
+router.post('/chat', runAgent);
 export default router;
