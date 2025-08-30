@@ -1,4 +1,3 @@
-// backend/agent.ts
 import { ChatOllama } from "@langchain/ollama";
 import { HumanMessage } from "@langchain/core/messages";
 
