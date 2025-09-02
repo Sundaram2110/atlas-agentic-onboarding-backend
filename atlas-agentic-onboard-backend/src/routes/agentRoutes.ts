@@ -1,6 +1,8 @@
-import { Router } from 'express';
-import { runAgent } from '../controllers/agentController';
+import { Router } from "express";
+import { getAgents, chatWithAgent, createAgent } from '../tools/agent';
 
 const router = Router();
-router.post('/chat', runAgent);
+router.get("/", getAgents);
+router.post("/", createAgent); // Add this line
+router.post("/chat", chatWithAgent);
 export default router;

@@ -33,7 +33,7 @@ app.use("/api/esignature", esignatureRoutes);
 app.use("/api/policies", policyRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/feedback", feedbackRoutes);
-app.use('/api/agent', agentRoutes);
+app.use('/api/agents', agentRoutes);
 app.use('/api/tasks', taskRoutes);
 
 const PORT = process.env.PORT || 5001;
