@@ -10,6 +10,8 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // API route
+
+// Existing chat endpoint
 app.post("/api/agent/chat", async (req, res) => {
   try {
     const { query } = req.body;
@@ -17,6 +19,22 @@ app.post("/api/agent/chat", async (req, res) => {
     res.json({ response });
   } catch (error) {
     console.error("Error in /api/agent/chat:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// New agentic workflow endpoint
+import axios from "axios";
+
+app.post("/api/agent/respond", async (req, res) => {
+  try {
+    const { prompt, context } = req.body;
+    // Forward to Python LangGraph agent service
+    const pythonAgentUrl = "http://localhost:8000/agent/respond";
+    const agentRes = await axios.post(pythonAgentUrl, { prompt, context });
+    res.json(agentRes.data);
+  } catch (error) {
+    console.error("Error in /api/agent/respond:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
