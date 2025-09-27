@@ -11,7 +11,19 @@ export const createAgent = (req: Request, res: Response) => {
   res.send("Agent created");
 };
 
-export const chatWithAgent = (req: Request, res: Response) => {
-  console.log("Chatting with agent");
-  res.send("Agent chat response");
+import axios from "axios";
+
+export const chatWithAgent = async (req: Request, res: Response) => {
+  try {
+    // Accept either 'prompt' or 'message'
+    const prompt = req.body.prompt || req.body.message;
+    const context = req.body.context || {};
+    console.log("Sending to Python agent:", { prompt, context });
+    const pythonAgentUrl = "http://localhost:8000/agent/respond";
+    const agentRes = await axios.post(pythonAgentUrl, { prompt, context });
+    res.json(agentRes.data);
+  } catch (error) {
+    console.error("Error in chatWithAgent:", error);
+    res.status(500).json({ error: "Agent chat failed" });
+  }
 };
