@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { runLangAgent } from "./agents/langAgent";
+import { getWorkflows } from "./tools/workflows";
 
 const app = express();
 const PORT = 5001;
@@ -38,6 +39,8 @@ app.post("/api/agent/respond", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+app.get("/api/workflows", getWorkflows);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
