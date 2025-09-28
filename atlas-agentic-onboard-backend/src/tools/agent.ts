@@ -89,3 +89,46 @@ export const chatWithAgent = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Agent chat failed" });
   }
 };
+
+export const stopAgent = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    console.log("Stopping agent:", id);
+    const pythonAgentUrl = "http://localhost:8000/agent/stop";
+    const agentRes = await axios.post(pythonAgentUrl, { agentId: id });
+    res.json(agentRes.data);
+  } catch (error) {
+    console.error("Error in stopAgent:", error);
+    res.status(500).json({ error: "Agent stop failed" });
+  }
+};
+
+export const deleteAgent = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Agent ID is required" });
+    }
+
+    const { data, error } = await supabase
+      .from('agents')
+      .delete()
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error("Error deleting agent:", error);
+      return res.status(500).json({ error: "Failed to delete agent" });
+    }
+
+    if (data.length === 0) {
+      return res.status(404).json({ error: "Agent not found" });
+    }
+
+    res.json({ message: "Agent deleted successfully" });
+  } catch (error) {
+    console.error("Error in deleteAgent:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

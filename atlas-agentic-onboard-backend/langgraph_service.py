@@ -9,6 +9,9 @@ class AgentRequest(BaseModel):
     prompt: str
     context: dict = {}
 
+class StopAgentRequest(BaseModel):
+    agentId: str
+
 # Tool functions
 def create_onboarding_task(employee_id, title, status, due_date):
     url = "http://localhost:5001/api/tasks"
@@ -144,3 +147,8 @@ def agent_workflow(prompt, context):
 async def agent_respond(request: AgentRequest):
     response = agent_workflow(request.prompt, request.context)
     return {"response": response}
+
+@app.post("/agent/stop")
+async def agent_stop(request: StopAgentRequest):
+    # For now, just return success. In a real implementation, stop the agent's process or workflow.
+    return {"message": f"Agent {request.agentId} stopped successfully"}
