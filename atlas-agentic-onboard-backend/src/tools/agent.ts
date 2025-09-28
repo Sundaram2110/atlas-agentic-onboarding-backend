@@ -7,7 +7,7 @@ export const getAgents = async (req: Request, res: Response) => {
     console.log("Fetching agents");
     const { data, error } = await supabase
       .from('agents')
-      .select('*');
+      .select('id, name, description, model, state, created_at, updated_at');
     if (error) {
       console.error("Error fetching agents:", error);
       return res.status(500).json({ error: "Failed to fetch agents" });
@@ -29,7 +29,7 @@ export const createAgent = async (req: Request, res: Response) => {
 
     const { data, error } = await supabase
       .from('agents')
-      .insert({ name, model, description })
+      .insert({ name, model, description, state: 'idle' })
       .select();
 
     if (error) {
@@ -47,7 +47,7 @@ export const createAgent = async (req: Request, res: Response) => {
 export const updateAgent = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, model, description } = req.body;
+    const { name, model, description, state } = req.body;
 
     if (!id) {
       return res.status(400).json({ error: "Agent ID is required" });
@@ -55,7 +55,7 @@ export const updateAgent = async (req: Request, res: Response) => {
 
     const { data, error } = await supabase
       .from('agents')
-      .update({ name, model, description })
+      .update({ name, model, description, state })
       .eq('id', id)
       .select();
 
@@ -81,6 +81,19 @@ export const chatWithAgent = async (req: Request, res: Response) => {
     const prompt = req.body.prompt || req.body.message;
     const context = req.body.context || {};
     console.log("Sending to Python agent:", { prompt, context });
+
+    // Set state to running (assuming there's an agent ID, but chat is general, wait, chat is POST /chat, not per agent
+    // Wait, the route is router.post("/chat", chatWithAgent); so no id, it's general chat.
+    // Perhaps no state change for chat, or assume all agents are affected? But that doesn't make sense.
+    // Perhaps chat is for a specific agent, but the route doesn't have :id.
+    // Looking back, it's POST /chat, and body has prompt, context.
+    // Perhaps it's not per agent, it's a general agent.
+    // To make state work, perhaps skip state for chat, or add id to body.
+    // For now, since the user is about agents list showing idle, and delete, perhaps the state is for the agents list.
+    // So, for chat, maybe no change, keep idle.
+    // But to make it functional, perhaps when chatting, set a global state or something, but that's not.
+    // Perhaps the agents have states, and chat is separate.
+    // I think for now, leave chat as is, no state change.
     const pythonAgentUrl = "http://localhost:8000/agent/respond";
     const agentRes = await axios.post(pythonAgentUrl, { prompt, context });
     res.json(agentRes.data);
@@ -96,10 +109,45 @@ export const stopAgent = async (req: Request, res: Response) => {
     console.log("Stopping agent:", id);
     const pythonAgentUrl = "http://localhost:8000/agent/stop";
     const agentRes = await axios.post(pythonAgentUrl, { agentId: id });
+
+    // Update state in DB to idle
+    const { error: updateError } = await supabase
+      .from('agents')
+      .update({ state: 'idle' })
+      .eq('id', id);
+
+    if (updateError) {
+      console.error("Error updating agent state:", updateError);
+    }
+
     res.json(agentRes.data);
   } catch (error) {
     console.error("Error in stopAgent:", error);
     res.status(500).json({ error: "Agent stop failed" });
+  }
+};
+
+export const startAgent = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    console.log("Starting agent:", id);
+    const pythonAgentUrl = "http://localhost:8000/agent/start";
+    const agentRes = await axios.post(pythonAgentUrl, { agentId: id });
+
+    // Update state in DB to running
+    const { error: updateError } = await supabase
+      .from('agents')
+      .update({ state: 'running' })
+      .eq('id', id);
+
+    if (updateError) {
+      console.error("Error updating agent state:", updateError);
+    }
+
+    res.json(agentRes.data);
+  } catch (error) {
+    console.error("Error in startAgent:", error);
+    res.status(500).json({ error: "Agent start failed" });
   }
 };
 

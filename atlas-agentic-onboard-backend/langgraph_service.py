@@ -12,6 +12,9 @@ class AgentRequest(BaseModel):
 class StopAgentRequest(BaseModel):
     agentId: str
 
+class StartAgentRequest(BaseModel):
+    agentId: str
+
 # Tool functions
 def create_onboarding_task(employee_id, title, status, due_date):
     url = "http://localhost:5001/api/tasks"
@@ -152,3 +155,8 @@ async def agent_respond(request: AgentRequest):
 async def agent_stop(request: StopAgentRequest):
     # For now, just return success. In a real implementation, stop the agent's process or workflow.
     return {"message": f"Agent {request.agentId} stopped successfully"}
+
+@app.post("/agent/start")
+async def agent_start(request: StartAgentRequest):
+    # For now, just return success. In a real implementation, start the agent's process or workflow.
+    return {"message": f"Agent {request.agentId} started successfully"}
