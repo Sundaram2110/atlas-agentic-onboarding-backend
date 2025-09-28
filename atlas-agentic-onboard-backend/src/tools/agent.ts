@@ -18,10 +18,29 @@ export const getAgents = async (req: Request, res: Response) => {
   }
 };
 
-export const createAgent = (req: Request, res: Response) => {
-  // TODO: Implement logic to add a new agent
-  console.log("Creating agent");
-  res.send("Agent created");
+export const createAgent = async (req: Request, res: Response) => {
+  try {
+    const { name, model, description } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ error: "Name is required" });
+    }
+
+    const { data, error } = await supabase
+      .from('agents')
+      .insert({ name, model, description })
+      .select();
+
+    if (error) {
+      console.error("Error creating agent:", error);
+      return res.status(500).json({ error: "Failed to create agent" });
+    }
+
+    res.status(201).json({ agent: data[0], message: "Agent created" });
+  } catch (error) {
+    console.error("Error in createAgent:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 import axios from "axios";
