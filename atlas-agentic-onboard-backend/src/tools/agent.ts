@@ -1,8 +1,21 @@
 import { Request, Response } from "express";
+import supabase from '../db/supabaseClient';
 
-export const getAgents = (req: Request, res: Response) => {
-  console.log("Fetching agents");
-  res.send("List of agents");
+export const getAgents = async (req: Request, res: Response) => {
+  try {
+    console.log("Fetching agents");
+    const { data, error } = await supabase
+      .from('agents')
+      .select('*');
+    if (error) {
+      console.error("Error fetching agents:", error);
+      return res.status(500).json({ error: "Failed to fetch agents" });
+    }
+    res.json({ agents: data });
+  } catch (error) {
+    console.error("Error in getAgents:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 export const createAgent = (req: Request, res: Response) => {
