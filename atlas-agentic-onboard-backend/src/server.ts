@@ -3,6 +3,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import { runLangAgent } from "./agents/langAgent";
 import { getWorkflows } from "./tools/workflows";
+import agentRoutes from "./routes/agentRoutes";
 
 const app = express();
 const PORT = 5001;
@@ -10,19 +11,9 @@ const PORT = 5001;
 app.use(cors());
 app.use(bodyParser.json());
 
-// API route
+app.use('/api/agent', agentRoutes);
 
-// Existing chat endpoint
-app.post("/api/agent/chat", async (req, res) => {
-  try {
-    const { query } = req.body;
-    const response = await runLangAgent(query);
-    res.json({ response });
-  } catch (error) {
-    console.error("Error in /api/agent/chat:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+// API route
 
 // New agentic workflow endpoint
 import axios from "axios";
