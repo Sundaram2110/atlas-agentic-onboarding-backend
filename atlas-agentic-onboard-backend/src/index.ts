@@ -14,6 +14,7 @@ import feedbackRoutes from "./routes/feedbackRoutes";
 import agentRoutes from './routes/agentRoutes';
 import taskRoutes from './routes/taskRoutes';
 import workflowRoutes from './routes/workflowRoutes';
+import dataSourceRoutes from './routes/dataSourceRoutes';
 
 const app = express();
 app.use(express.json());
@@ -37,6 +38,7 @@ app.use("/api/feedback", feedbackRoutes);
 app.use('/api/agent', agentRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/workflows', workflowRoutes);
+app.use('/api/data-sources', dataSourceRoutes);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
